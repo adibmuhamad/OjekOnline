@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "932057033342",
+    "firebase_url": "https://ojekonline-d6271.firebaseio.com",
+    "project_id": "ojekonline-d6271",
+    "storage_bucket": "ojekonline-d6271.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:932057033342:android:dd98f6c351ebdc0c",
+        "android_client_info": {
+          "package_name": "com.online.ojek.ojekonline"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "932057033342-fbs24mms0i0upkbvad5cuis6umh3s2ng.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.online.ojek.ojekonline",
+            "certificate_hash": "33e341e15e6d8723633d3a3b9740950fb225a7ac"
+          }
+        },
+        {
+          "client_id": "932057033342-g523vevok853lmt7hgot7c7d2c99ktbj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBk3VYeJNfudAVwDx0b8SQjg83V9recVM0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "932057033342-g523vevok853lmt7hgot7c7d2c99ktbj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
