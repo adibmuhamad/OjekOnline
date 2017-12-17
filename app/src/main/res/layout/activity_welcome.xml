@@ -13,21 +13,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-            <EditText
-                android:id="@+id/editPlace"
-                android:hint="Enter pickup location"
-                android:layout_weight="5"
-                android:layout_margin="10dp"
+            <!--<EditText-->
+                <!--android:id="@+id/editPlace"-->
+                <!--android:hint="Enter pickup location"-->
+                <!--android:layout_weight="5"-->
+                <!--android:layout_margin="10dp"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content" />-->
+            <fragment
+                android:id="@+id/place_autocomplete_fragment"
+                android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:layout_margin="10dp">
 
-            <Button
-                android:id="@+id/btnGo"
-                android:text="Go"
-                android:layout_weight="1"
-                android:layout_marginTop="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            </fragment>
+
+            <!--<Button-->
+                <!--android:id="@+id/btnGo"-->
+                <!--android:text="Go"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content" />-->
 
             </LinearLayout>
 
