@@ -2,4 +2,12 @@
     <string name="app_name">OjekOnline</string>
     <string name="title_activity_welcome">Map</string>
     <string name="google_direction_api">AIzaSyBk3VYeJNfudAVwDx0b8SQjg83V9recVM0</string>
+    <string name="title_activity_rider_welcome">Map</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_home">Home</string>
 </resources>

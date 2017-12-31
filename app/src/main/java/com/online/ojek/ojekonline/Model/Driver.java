@@ -4,14 +4,14 @@ package com.online.ojek.ojekonline.Model;
  * Created by adib on 14/12/17.
  */
 
-public class User {
+public class Driver {
     private String email,password,name,phone;
 
-    public User(){
+    public Driver(){
 
     }
 
-    public User(String email, String password, String name, String phone){
+    public Driver(String email, String password, String name, String phone){
         this.email = email;
         this.password = password;
         this.name = name;

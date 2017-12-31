@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".Driver.DriverMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Welcome"
+            android:name=".Driver.DriverWelcomeActivity"
             android:label="@string/title_activity_welcome" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -38,6 +38,12 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
+        <activity android:name=".Rider.RiderMainActivity" />
+        <activity
+            android:name=".Rider.RiderWelcomeActivity"
+            android:label="@string/title_activity_rider_welcome"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#070716</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="dividerColor">#1F000000</color>
+
     <color name="bottomText">#6b6b76</color>
 
     <color name="rippleEffectColor">#f816a463</color>

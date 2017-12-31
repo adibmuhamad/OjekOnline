@@ -1,4 +1,4 @@
-package com.online.ojek.ojekonline;
+package com.online.ojek.ojekonline.Rider;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,21 +20,25 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.online.ojek.ojekonline.Model.User;
+import com.online.ojek.ojekonline.Driver.DriverMainActivity;
+import com.online.ojek.ojekonline.Model.Rider;
+import com.online.ojek.ojekonline.R;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import dmax.dialog.SpotsDialog;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
-public class MainActivity extends AppCompatActivity {
+public class RiderMainActivity extends AppCompatActivity {
 
     Button btnSignIn, btnRegister;
-    RelativeLayout rootLayout;
+    RelativeLayout rootRiderLayout;
 
     FirebaseAuth auth;
     FirebaseDatabase db;
     DatabaseReference users;
+
+    private final static int PERMISSION = 1000;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -45,19 +49,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-        .setDefaultFontPath("fonts/Roboto-Regular.ttf")
-        .setFontAttrId(R.attr.fontPath)
-        .build());
-        setContentView(R.layout.activity_main);
+                .setDefaultFontPath("fonts/Roboto-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
+        setContentView(R.layout.activity_rider_main);
+
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
-        users = db.getReference("Users");
+        users = db.getReference("UserRiders");
 
 
-        btnSignIn = (Button)findViewById(R.id.btnSignIn);
-        btnRegister = (Button)findViewById(R.id.btnRegister);
-        rootLayout = (RelativeLayout)findViewById(R.id.rootLayout);
+        btnSignIn = (Button)findViewById(R.id.btnSignInRider);
+        btnRegister = (Button)findViewById(R.id.btnRegisterRider);
+        rootRiderLayout = (RelativeLayout)findViewById(R.id.rootRiderLayout);
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private void showLoginDialog() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("MASUK");
@@ -88,54 +94,54 @@ public class MainActivity extends AppCompatActivity {
         dialog.setView(layout_login);
 
         dialog.setPositiveButton("MASUK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
 
-                        btnSignIn.setEnabled(false);
+                btnSignIn.setEnabled(false);
 
 
-                        if (TextUtils.isEmpty(editEmail.getText().toString())) {
-                            Snackbar.make(rootLayout, "Please enter email address", Snackbar.LENGTH_SHORT)
-                                    .show();
-                            return;
-                        }
+                if (TextUtils.isEmpty(editEmail.getText().toString())) {
+                    Snackbar.make(rootRiderLayout, "Please enter email address", Snackbar.LENGTH_SHORT)
+                            .show();
+                    return;
+                }
 
-                        if (TextUtils.isEmpty(editPassword.getText().toString())) {
-                            Snackbar.make(rootLayout, "Please enter password", Snackbar.LENGTH_SHORT)
-                                    .show();
-                            return;
-                        }
+                if (TextUtils.isEmpty(editPassword.getText().toString())) {
+                    Snackbar.make(rootRiderLayout, "Please enter password", Snackbar.LENGTH_SHORT)
+                            .show();
+                    return;
+                }
 
-                        if (editPassword.getText().length() < 6) {
-                            Snackbar.make(rootLayout, "Password too short !!!", Snackbar.LENGTH_SHORT)
-                                    .show();
-                            return;
-                        }
+                if (editPassword.getText().length() < 6) {
+                    Snackbar.make(rootRiderLayout, "Password too short !!!", Snackbar.LENGTH_SHORT)
+                            .show();
+                    return;
+                }
 
-                        final SpotsDialog waitingDialog = new SpotsDialog(MainActivity.this);
-                        waitingDialog.show();
+                final SpotsDialog waitingDialog = new SpotsDialog(RiderMainActivity.this);
+                waitingDialog.show();
 
-                        auth.signInWithEmailAndPassword(editEmail.getText().toString(),editPassword.getText().toString())
-                                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                                    @Override
-                                    public void onSuccess(AuthResult authResult) {
-                                        waitingDialog.dismiss();
-                                        startActivity(new Intent(MainActivity.this, Welcome.class));
-                                        finish();
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
+                auth.signInWithEmailAndPassword(editEmail.getText().toString(),editPassword.getText().toString())
+                        .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                             @Override
-                            public void onFailure(@NonNull Exception e) {
+                            public void onSuccess(AuthResult authResult) {
                                 waitingDialog.dismiss();
-                                Snackbar.make(rootLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
-                                        .show();
-                                btnSignIn.setEnabled(true);
+                                startActivity(new Intent(RiderMainActivity.this, RiderWelcomeActivity.class));
+                                finish();
                             }
-                        });
-
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        waitingDialog.dismiss();
+                        Snackbar.make(rootRiderLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
+                                .show();
+                        btnSignIn.setEnabled(true);
                     }
                 });
+
+            }
+        });
         dialog.setNegativeButton("BATAL", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -169,25 +175,25 @@ public class MainActivity extends AppCompatActivity {
                 dialogInterface.dismiss();
 
                 if(TextUtils.isEmpty(editEmail.getText().toString())){
-                    Snackbar.make(rootLayout, "Please enter email address", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(rootRiderLayout, "Please enter email address", Snackbar.LENGTH_SHORT)
                             .show();
                     return;
                 }
 
                 if(TextUtils.isEmpty(editPhone.getText().toString())){
-                    Snackbar.make(rootLayout, "Please enter phone number", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(rootRiderLayout, "Please enter phone number", Snackbar.LENGTH_SHORT)
                             .show();
                     return;
                 }
 
                 if(TextUtils.isEmpty(editPassword.getText().toString())){
-                    Snackbar.make(rootLayout, "Please enter password", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(rootRiderLayout, "Please enter password", Snackbar.LENGTH_SHORT)
                             .show();
                     return;
                 }
 
                 if(editPassword.getText().length() < 6){
-                    Snackbar.make(rootLayout, "Password too short !!!", Snackbar.LENGTH_SHORT)
+                    Snackbar.make(rootRiderLayout, "Password too short !!!", Snackbar.LENGTH_SHORT)
                             .show();
                     return;
                 }
@@ -196,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                             @Override
                             public void onSuccess(AuthResult authResult) {
-                                User user =new User();
+                                Rider user = new Rider();
                                 user.setEmail(editEmail.getText().toString());
                                 user.setPassword(editPassword.getText().toString());
                                 user.setName(editName.getText().toString());
@@ -207,14 +213,14 @@ public class MainActivity extends AppCompatActivity {
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Snackbar.make(rootLayout, "Register successfully", Snackbar.LENGTH_SHORT)
+                                                Snackbar.make(rootRiderLayout, "Register successfully", Snackbar.LENGTH_SHORT)
                                                         .show();
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                Snackbar.make(rootLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
+                                                Snackbar.make(rootRiderLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
                                                         .show();
                                             }
                                         });
@@ -222,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
                         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Snackbar.make(rootLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
+                        Snackbar.make(rootRiderLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
                                 .show();
                     }
                 });
@@ -235,5 +241,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         dialog.show();
+
     }
+
+    public void onDriverClick(View v){
+        startActivity(new Intent(RiderMainActivity.this, DriverMainActivity.class));
+        finish();
+    }
+
+
+
 }

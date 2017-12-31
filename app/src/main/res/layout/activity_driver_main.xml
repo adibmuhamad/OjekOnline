@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/rootLayout"
-    tools:context="com.online.ojek.ojekonline.MainActivity">
+    tools:context="com.online.ojek.ojekonline.Driver.DriverMainActivity">
 
     <LinearLayout
         android:orientation="vertical"
@@ -30,18 +30,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
-    
+
     <TextView
         android:id="@+id/txt_rider_app"
-        android:text="Mencari aplikasi untuk penumpang?"
-        android:textSize="12sp"
-        android:textAlignment="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:clickable="true"
+        android:onClick="onRiderClick"
+        android:text="Mencari aplikasi untuk penumpang?"
+        android:textAlignment="center"
+        android:textSize="12sp" />
     
     <LinearLayout
         android:orientation="horizontal"
@@ -52,7 +54,7 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/btnSignIn"
+            android:id="@+id/btnSignInDriver"
             android:background="@drawable/btn_sign_in_background"
             android:text="MASUK"
             android:textColor="@android:color/white"
@@ -62,11 +64,11 @@
             android:layout_height="wrap_content" />
 
         <Button
-            android:id="@+id/btnRegister"
+            android:id="@+id/btnRegisterDriver"
             android:background="@drawable/btn_register_background"
             android:text="DAFTAR"
             android:textColor="@color/btnRegister"
-            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content" />

@@ -42,11 +42,11 @@
 
         <fragment
             android:layout_below="@+id/layout_panel"
-            android:id="@+id/map"
+            android:id="@+id/mapDriver"
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="com.online.ojek.ojekonline.Welcome" />
+            tools:context="com.online.ojek.ojekonline.Driver.DriverWelcomeActivity" />
 
         <android.support.v7.widget.CardView
             app:cardElevation="10dp"

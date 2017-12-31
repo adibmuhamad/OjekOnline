@@ -1,6 +1,5 @@
-package com.online.ojek.ojekonline;
+package com.online.ojek.ojekonline.Driver;
 
-import android.*;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageManager;
@@ -15,11 +14,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -33,7 +29,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
@@ -41,7 +36,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
@@ -57,6 +51,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.online.ojek.ojekonline.Common.Common;
+import com.online.ojek.ojekonline.R;
 import com.online.ojek.ojekonline.remote.IGoogleAPI;
 
 import org.json.JSONArray;
@@ -71,7 +66,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class Welcome extends FragmentActivity implements OnMapReadyCallback,
+public class DriverWelcomeActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
@@ -165,10 +160,10 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
             @Override
             protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
-                setContentView(R.layout.activity_welcome);
+                setContentView(R.layout.activity_driver_welcome);
                 // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                 mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.map);
+                        .findFragmentById(R.id.mapDriver);
                 mapFragment.getMapAsync(this);
 
                 location_switch = (MaterialAnimatedSwitch)findViewById(R.id.location_switch);
@@ -206,14 +201,14 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
                             getDirection();
                         }
                         else {
-                            Toast.makeText(Welcome.this,"Please change your status to ONLINE", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DriverWelcomeActivity.this,"Please change your status to ONLINE", Toast.LENGTH_SHORT).show();
                         }
 
                     }
 
                     @Override
                     public void onError(Status status) {
-                        Toast.makeText(Welcome.this, ""+status.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DriverWelcomeActivity.this, ""+status.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -307,7 +302,7 @@ public class Welcome extends FragmentActivity implements OnMapReadyCallback,
 
                                 @Override
                                 public void onFailure(Call<String> call, Throwable t) {
-                                    Toast.makeText(Welcome.this, ""+t.getMessage(),Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(DriverWelcomeActivity.this, ""+t.getMessage(),Toast.LENGTH_SHORT).show();
                                 }
                             });
                 }catch (Exception e){
