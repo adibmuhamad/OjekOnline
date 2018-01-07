@@ -20,6 +20,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.online.ojek.ojekonline.Common.Common;
 import com.online.ojek.ojekonline.Driver.DriverMainActivity;
 import com.online.ojek.ojekonline.Model.Rider;
 import com.online.ojek.ojekonline.R;
@@ -57,7 +58,7 @@ public class RiderMainActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
-        users = db.getReference("UserRiders");
+        users = db.getReference(Common.user_rider_tbl);
 
 
         btnSignIn = (Button)findViewById(R.id.btnSignInRider);
