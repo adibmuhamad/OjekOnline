@@ -46,10 +46,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.gson.Gson;
 import com.online.ojek.ojekonline.Common.Common;
 import com.online.ojek.ojekonline.Helper.CustomInfoWindow;
+import com.online.ojek.ojekonline.Model.FCMResponse;
+import com.online.ojek.ojekonline.Model.Notification;
 import com.online.ojek.ojekonline.Model.Rider;
+import com.online.ojek.ojekonline.Model.Sender;
+import com.online.ojek.ojekonline.Model.Token;
 import com.online.ojek.ojekonline.R;
+import com.online.ojek.ojekonline.remote.IFCMService;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RiderWelcomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -87,6 +98,8 @@ public class RiderWelcomeActivity extends AppCompatActivity
     int distance = 1;
     private static final int LIMIT = 3;
 
+    IFCMService mService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +107,7 @@ public class RiderWelcomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        mService = Common.getFCMService();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -108,8 +121,8 @@ public class RiderWelcomeActivity extends AppCompatActivity
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.mapRider);
         mapFragment.getMapAsync(this);
 
-//        riders = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
-//        geoFire = new GeoFire(riders);
+        riders = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
+        geoFire = new GeoFire(riders);
 
         imgExpandable = (ImageView)findViewById(R.id.imgExpandalbe);
         mBottomSheet = BottomSheetRiderFragment.newInstance("Rider bottom sheet");
@@ -124,11 +137,64 @@ public class RiderWelcomeActivity extends AppCompatActivity
         btnPickUpRequest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                requestPickUpHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                if(!isDriverFound)
+                    requestPickUpHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                else
+                    sendRequestToDriver(driverId);
             }
         });
 
         setUpLocation();
+
+        updateFirebaseToken();
+    }
+
+    private void updateFirebaseToken() {
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference tokens = db.getReference(Common.token_tbl);
+
+        Token token = new Token(FirebaseInstanceId.getInstance().getToken());
+        tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .setValue(token);
+    }
+
+    private void sendRequestToDriver(String driverId) {
+        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference(Common.token_tbl);
+        tokens.orderByKey().equalTo(driverId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot postSnapshot:dataSnapshot.getChildren()){
+                            Token token = postSnapshot.getValue(Token.class);
+
+                            String json_lat_lng = new Gson().toJson(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                            Notification data = new Notification("Coba",json_lat_lng);
+                            Sender content = new Sender(token.getToken(), data);
+
+                            mService.sendMessage(content)
+                                    .enqueue(new Callback<FCMResponse>() {
+                                        @Override
+                                        public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                                            if(response.body().success == 1)
+                                                Toast.makeText(RiderWelcomeActivity.this, "Request sent!", Toast.LENGTH_SHORT);
+                                            else
+                                                Toast.makeText(RiderWelcomeActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+                                            Log.e("ERROR", t.getMessage());
+                                        }
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void requestPickUpHere(String uid) {
