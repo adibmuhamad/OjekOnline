@@ -100,6 +100,8 @@ public class RiderWelcomeActivity extends AppCompatActivity
 
     IFCMService mService;
 
+    DatabaseReference driversAvailable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +122,7 @@ public class RiderWelcomeActivity extends AppCompatActivity
 
         mapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.mapRider);
         mapFragment.getMapAsync(this);
+
 
         riders = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
         geoFire = new GeoFire(riders);
@@ -298,6 +301,20 @@ public class RiderWelcomeActivity extends AppCompatActivity
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if(mLastLocation != null){
+
+            driversAvailable = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
+            driversAvailable.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    loadAllAvailableDriver();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
             final double latitude = mLastLocation.getLatitude();
             final double longitude = mLastLocation.getLongitude();
 
@@ -319,6 +336,11 @@ public class RiderWelcomeActivity extends AppCompatActivity
     }
 
     private void loadAllAvailableDriver() {
+
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()))
+                        .title("You"));
+
         DatabaseReference driverLocation = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
         GeoFire gf = new GeoFire(driverLocation);
         GeoQuery geoQuery = gf.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(),mLastLocation.getLongitude()),distance);

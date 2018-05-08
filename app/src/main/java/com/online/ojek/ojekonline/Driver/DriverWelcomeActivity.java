@@ -47,9 +47,11 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.online.ojek.ojekonline.Common.Common;
 import com.online.ojek.ojekonline.Model.Token;
@@ -106,6 +108,8 @@ public class DriverWelcomeActivity extends FragmentActivity implements OnMapRead
     private Polyline blackPolyLine, greyPolyLine;
 
     private IGoogleAPI mServices;
+
+    DatabaseReference onlineRef, currentUserRef;
 
     Runnable drawPathRunnable = new Runnable() {
         @Override
@@ -168,11 +172,28 @@ public class DriverWelcomeActivity extends FragmentActivity implements OnMapRead
                         .findFragmentById(R.id.mapDriver);
                 mapFragment.getMapAsync(this);
 
+                onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+                currentUserRef = FirebaseDatabase.getInstance().getReference(Common.driver_tbl)
+                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                onlineRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        currentUserRef.onDisconnect().removeValue();
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
                 location_switch = (MaterialAnimatedSwitch)findViewById(R.id.location_switch);
                 location_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(boolean isOnline) {
                         if(isOnline){
+                            FirebaseDatabase.getInstance().goOnline();
                             startLocationUpdate();
                             displayLocation();
                             Snackbar.make(mapFragment.getView(), "You are online", Snackbar.LENGTH_SHORT)
@@ -180,10 +201,13 @@ public class DriverWelcomeActivity extends FragmentActivity implements OnMapRead
                         }
                         else
                         {
+                            FirebaseDatabase.getInstance().goOffline();
                             stopLocationUpdate();
                             mCurrent.remove();
                             mMap.clear();
-                            handler.removeCallbacks(drawPathRunnable);
+                            if(destination != null){
+                                handler.removeCallbacks(drawPathRunnable);
+                            }
                             Snackbar.make(mapFragment.getView(), "You are offline", Snackbar.LENGTH_SHORT)
                                     .show();
                         }
