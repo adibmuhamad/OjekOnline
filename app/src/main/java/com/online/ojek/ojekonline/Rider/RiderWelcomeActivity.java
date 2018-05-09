@@ -172,7 +172,8 @@ public class RiderWelcomeActivity extends AppCompatActivity
                             Token token = postSnapshot.getValue(Token.class);
 
                             String json_lat_lng = new Gson().toJson(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
-                            Notification data = new Notification("Coba",json_lat_lng);
+                            String riderToken = FirebaseInstanceId.getInstance().getToken();
+                            Notification data = new Notification(riderToken,json_lat_lng);
                             Sender content = new Sender(token.getToken(), data);
 
                             mService.sendMessage(content)
