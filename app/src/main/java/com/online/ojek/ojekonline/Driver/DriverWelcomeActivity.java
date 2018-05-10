@@ -148,7 +148,7 @@ public class DriverWelcomeActivity extends FragmentActivity implements OnMapRead
         }
     };
 
-            private float getBearing(LatLng startPosition, LatLng endPosition) {
+    private float getBearing(LatLng startPosition, LatLng endPosition) {
                 double lat = Math.abs(startPosition.latitude - endPosition.latitude);
                 double lng = Math.abs(startPosition.longitude - endPosition.longitude);
 
@@ -163,8 +163,8 @@ public class DriverWelcomeActivity extends FragmentActivity implements OnMapRead
                 return -1;
             }
 
-            @Override
-            protected void onCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
                 setContentView(R.layout.activity_driver_welcome);
                 // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -257,96 +257,97 @@ public class DriverWelcomeActivity extends FragmentActivity implements OnMapRead
     }
 
     private void getDirection() {
-                currentPosition = new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude());
-                String requestAPI = null;
-                try{
-                    requestAPI = "https://maps.googleapis.com/maps/api/directions/json?"+
-                            "mode=driving&"+
-                            "transit_routing_preference=less_driving&"+
-                            "origin="+currentPosition.latitude+","+currentPosition.longitude+"&"+
-                            "destination="+destination+"&"+
-                            "key="+getResources().getString(R.string.google_direction_api);
-                    Log.d("OjekOnline",requestAPI);
-                    mServices.getPath(requestAPI)
-                            .enqueue(new Callback<String>() {
-                                @Override
-                                public void onResponse(Call<String> call, Response<String> response) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response.body().toString());
-                                        JSONArray jsonArray = jsonObject.getJSONArray("routes");
-                                        for(int i = 0; i<jsonArray.length(); i++){
-                                            JSONObject route = jsonArray.getJSONObject(i);
-                                            JSONObject poly = route.getJSONObject("overview_polyline");
-                                            String polyline = poly.getString("points");
-                                            polyLineList = decodePoly(polyline);
-                                        }
-                                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                        for(LatLng latLng:polyLineList)
-                                            builder.include(latLng);
-                                        LatLngBounds bounds = builder.build();
-                                        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
-                                        mMap.animateCamera(mCameraUpdate);
+        currentPosition = new LatLng(Common.mLastLocation.getLatitude(),Common.mLastLocation.getLongitude());
+        String requestAPI = null;
+        try{
+            requestAPI = "https://maps.googleapis.com/maps/api/directions/json?"+
+                    "mode=driving&"+
+                    "transit_routing_preference=less_driving&"+
+                    "origin="+currentPosition.latitude+","+currentPosition.longitude+"&"+
+                    "destination="+destination+"&"+
+                    "key="+getResources().getString(R.string.google_direction_api);
+            Log.d("OjekOnline",requestAPI);
+            mServices.getPath(requestAPI)
+                    .enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.body().toString());
+                                JSONArray jsonArray = jsonObject.getJSONArray("routes");
+                                for(int i = 0; i<jsonArray.length(); i++){
+                                    JSONObject route = jsonArray.getJSONObject(i);
+                                    JSONObject poly = route.getJSONObject("overview_polyline");
+                                    String polyline = poly.getString("points");
+                                    polyLineList = decodePoly(polyline);
+                                }
+                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                for(LatLng latLng:polyLineList)
+                                    builder.include(latLng);
+                                LatLngBounds bounds = builder.build();
+                                CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
+                                mMap.animateCamera(mCameraUpdate);
 
-                                        polylineOptions = new PolylineOptions();
-                                        polylineOptions.color(Color.GRAY);
-                                        polylineOptions.width(5);
-                                        polylineOptions.startCap(new SquareCap());
-                                        polylineOptions.endCap(new SquareCap());
-                                        polylineOptions.jointType(JointType.ROUND);
-                                        polylineOptions.addAll(polyLineList);
-                                        greyPolyLine = mMap.addPolyline(polylineOptions);
+                                polylineOptions = new PolylineOptions();
+                                polylineOptions.color(Color.GRAY);
+                                polylineOptions.width(5);
+                                polylineOptions.startCap(new SquareCap());
+                                polylineOptions.endCap(new SquareCap());
+                                polylineOptions.jointType(JointType.ROUND);
+                                polylineOptions.addAll(polyLineList);
+                                greyPolyLine = mMap.addPolyline(polylineOptions);
 
-                                        blackPolyLineOptions= new PolylineOptions();
-                                        blackPolyLineOptions.color(Color.BLACK);
-                                        blackPolyLineOptions.width(5);
-                                        blackPolyLineOptions.startCap(new SquareCap());
-                                        blackPolyLineOptions.endCap(new SquareCap());
-                                        blackPolyLineOptions.jointType(JointType.ROUND);
-                                        blackPolyLine = mMap.addPolyline(blackPolyLineOptions);
+                                blackPolyLineOptions= new PolylineOptions();
+                                blackPolyLineOptions.color(Color.BLACK);
+                                blackPolyLineOptions.width(5);
+                                blackPolyLineOptions.startCap(new SquareCap());
+                                blackPolyLineOptions.endCap(new SquareCap());
+                                blackPolyLineOptions.jointType(JointType.ROUND);
+                                blackPolyLine = mMap.addPolyline(blackPolyLineOptions);
 
-                                        mMap.addMarker(new MarkerOptions()
-                                                .position(polyLineList.get(polyLineList.size()-1))
-                                                .title("Pickup Location"));
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(polyLineList.get(polyLineList.size()-1))
+                                        .title("Pickup Location"));
 
-                                        ValueAnimator polyLineAnimator = ValueAnimator.ofInt(0,100);
-                                        polyLineAnimator.setDuration(2000);
-                                        polyLineAnimator.setInterpolator(new LinearInterpolator());
-                                        polyLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                                            @Override
-                                            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                                                List<LatLng> points = greyPolyLine.getPoints();
-                                                int percentValue = (int)valueAnimator.getAnimatedValue();
-                                                int size = points.size();
-                                                int newPoints = (int)(size * (percentValue/100.0f));
-                                                List<LatLng> p = points.subList(0, newPoints);
-                                                blackPolyLine.setPoints(p);
-                                            }
-                                        });
-                                        polyLineAnimator.start();
-
-                                        ojekMarker = mMap.addMarker(new MarkerOptions().position(currentPosition)
-                                                .flat(true)
-                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.motor)));
-
-                                        handler = new Handler();
-                                        index=-1;
-                                        next=1;
-                                        handler.postDelayed(drawPathRunnable, 3000);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                ValueAnimator polyLineAnimator = ValueAnimator.ofInt(0,100);
+                                polyLineAnimator.setDuration(2000);
+                                polyLineAnimator.setInterpolator(new LinearInterpolator());
+                                polyLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                    @Override
+                                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                                        List<LatLng> points = greyPolyLine.getPoints();
+                                        int percentValue = (int)valueAnimator.getAnimatedValue();
+                                        int size = points.size();
+                                        int newPoints = (int)(size * (percentValue/100.0f));
+                                        List<LatLng> p = points.subList(0, newPoints);
+                                        blackPolyLine.setPoints(p);
                                     }
-                                }
+                                });
+                                polyLineAnimator.start();
 
-                                @Override
-                                public void onFailure(Call<String> call, Throwable t) {
-                                    Toast.makeText(DriverWelcomeActivity.this, ""+t.getMessage(),Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+                                ojekMarker = mMap.addMarker(new MarkerOptions().position(currentPosition)
+                                        .flat(true)
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.motor)));
 
-            }
+                                handler = new Handler();
+                                index=-1;
+                                next=1;
+                                handler.postDelayed(drawPathRunnable, 3000);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Toast.makeText(DriverWelcomeActivity.this, ""+t.getMessage(),Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
 
             private List decodePoly(String encoded) {
 
