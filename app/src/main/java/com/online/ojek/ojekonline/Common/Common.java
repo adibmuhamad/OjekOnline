@@ -2,6 +2,7 @@ package com.online.ojek.ojekonline.Common;
 
 import android.location.Location;
 
+import com.online.ojek.ojekonline.Model.Driver;
 import com.online.ojek.ojekonline.remote.FCMClient;
 import com.online.ojek.ojekonline.remote.IFCMService;
 import com.online.ojek.ojekonline.remote.IGoogleAPI;
@@ -18,6 +19,8 @@ public class Common {
     public static final String user_rider_tbl = "RidersInformation";
     public static final String pickup_request_tbl = "PickupRequest";
     public static final String token_tbl = "Tokens";
+
+    public static Driver currentUser;
 
     public static Location mLastLocation = null;
 

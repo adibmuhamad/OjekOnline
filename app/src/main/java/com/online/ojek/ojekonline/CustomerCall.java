@@ -84,6 +84,7 @@ public class CustomerCall extends AppCompatActivity {
                 Intent intent = new Intent(CustomerCall.this, DriverTracking.class);
                 intent.putExtra("lat", lat);
                 intent.putExtra("lng", lng);
+                intent.putExtra("customerId", customerId);
                 startActivity(intent);
                 finish();
 
@@ -106,7 +107,7 @@ public class CustomerCall extends AppCompatActivity {
 
     private void cancelBooking(String customerId) {
         Token token = new Token(customerId);
-        Notification notification = new Notification("Notice!", "Driver has cancelled your request");
+        Notification notification = new Notification("Cancel", "Driver has cancelled your request");
         Sender sender = new Sender(token.getToken(),notification);
 
         mFCMServie.sendMessage(sender)
