@@ -11,4 +11,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_home">Home</string>
     <string name="title_activity_driver_tracking">Map</string>
+
+    <string name="google_browser_key">AIzaSyBJ9eEA5F9IDNACnz7Tq5wHSD5SZSxdZ7Y</string>
 </resources>

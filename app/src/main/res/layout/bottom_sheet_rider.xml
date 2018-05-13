@@ -72,10 +72,9 @@
 
         <TextView
             android:id="@+id/txtCalculation"
-            android:text="10km + 10 mins = Rp 100"
             android:layout_weight="9"
             android:layout_width="0dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

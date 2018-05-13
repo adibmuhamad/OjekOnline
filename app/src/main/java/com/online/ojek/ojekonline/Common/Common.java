@@ -4,6 +4,7 @@ import android.location.Location;
 
 import com.online.ojek.ojekonline.Model.Driver;
 import com.online.ojek.ojekonline.remote.FCMClient;
+import com.online.ojek.ojekonline.remote.GoogleMapAPI;
 import com.online.ojek.ojekonline.remote.IFCMService;
 import com.online.ojek.ojekonline.remote.IGoogleAPI;
 import com.online.ojek.ojekonline.remote.RetrofitClient;
@@ -22,10 +23,19 @@ public class Common {
 
     public static Driver currentUser;
 
+    public static double base_fare = 1000;
+    public static double time_rate = 200;
+    public static double distance_rate = 500;
+
+    public static double getPrice(double km,int min){
+        return (base_fare+(time_rate*min)+(distance_rate*km));
+    }
+
     public static Location mLastLocation = null;
 
     public static final String baseURL = "https://maps.googleapis.com";
     public static final String fcmURL = "https://fcm.googleapis.com";
+    public static final String googleAPIUrl = "https://maps.googleapis.com";
 
     public static IGoogleAPI getGoogleAPI(){
         return RetrofitClient.getClient(baseURL).create(IGoogleAPI.class);
@@ -33,5 +43,9 @@ public class Common {
 
     public static IFCMService getFCMService(){
         return FCMClient.getClient(fcmURL).create(IFCMService.class);
+    }
+
+    public static IGoogleAPI getGoogleService(){
+        return GoogleMapAPI.getClient(googleAPIUrl).create(IGoogleAPI.class);
     }
 }
