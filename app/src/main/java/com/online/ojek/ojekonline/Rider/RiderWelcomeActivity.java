@@ -33,6 +33,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -43,6 +44,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,6 +55,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
+import com.google.maps.android.SphericalUtil;
 import com.online.ojek.ojekonline.Common.Common;
 import com.online.ojek.ojekonline.Helper.CustomInfoWindow;
 import com.online.ojek.ojekonline.Model.FCMResponse;
@@ -110,6 +113,8 @@ public class RiderWelcomeActivity extends AppCompatActivity
     PlaceAutocompleteFragment place_location,place_destination;
     String mPlaceLocation,mPlaceDestination;
 
+    AutocompleteFilter typeFilter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +156,11 @@ public class RiderWelcomeActivity extends AppCompatActivity
 
         place_destination = (PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.rider_place_destination);
         place_location = (PlaceAutocompleteFragment)getFragmentManager().findFragmentById(R.id.rider_place_location);
+
+        typeFilter = new AutocompleteFilter.Builder()
+                        .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
+                        .setTypeFilter(3)
+                        .build();
 
         place_location.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -343,6 +353,20 @@ public class RiderWelcomeActivity extends AppCompatActivity
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if(mLastLocation != null){
+
+            LatLng center = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+            LatLng northSide = SphericalUtil.computeOffset(center,100000,0);
+            LatLng southSide = SphericalUtil.computeOffset(center,100000,180);
+
+            LatLngBounds bounds = LatLngBounds.builder()
+                    .include(northSide)
+                    .include(southSide)
+                    .build();
+            place_location.setBoundsBias(bounds);
+            place_location.setFilter(typeFilter);
+
+            place_destination.setBoundsBias(bounds);
+            place_destination.setFilter(typeFilter);
 
             driversAvailable = FirebaseDatabase.getInstance().getReference(Common.driver_tbl);
             driversAvailable.addValueEventListener(new ValueEventListener() {
