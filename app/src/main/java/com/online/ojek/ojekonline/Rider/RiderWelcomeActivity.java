@@ -94,7 +94,7 @@ public class RiderWelcomeActivity extends AppCompatActivity
     DatabaseReference riders;
     GeoFire geoFire;
 
-    Marker mUserMarker;
+    Marker mUserMarker, markerDestination;
 
     ImageView imgExpandable;
     BottomSheetRiderFragment mBottomSheet;
@@ -185,7 +185,7 @@ public class RiderWelcomeActivity extends AppCompatActivity
                 mMap.addMarker(new MarkerOptions().position(place.getLatLng())
                                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(),15.0f));
-                BottomSheetRiderFragment mBottomSheetRiderFragment = BottomSheetRiderFragment.newInstance(mPlaceLocation,mPlaceDestination);
+                BottomSheetRiderFragment mBottomSheetRiderFragment = BottomSheetRiderFragment.newInstance(mPlaceLocation,mPlaceDestination,false);
                 mBottomSheetRiderFragment.show(getSupportFragmentManager(),mBottomSheetRiderFragment.getTag());
 
             }
@@ -555,6 +555,22 @@ public class RiderWelcomeActivity extends AppCompatActivity
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if(markerDestination != null)
+                    markerDestination.remove();
+                markerDestination = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .position(latLng)
+                .title("Destination"));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,15.0f));
+
+                BottomSheetRiderFragment mBottomSheetRiderFragment = BottomSheetRiderFragment.newInstance(String.format("%f,%f",mLastLocation.getLatitude(),mLastLocation.getLongitude()),
+                        String.format("%f,%f",latLng.latitude,latLng.longitude),true);
+                mBottomSheetRiderFragment.show(getSupportFragmentManager(),mBottomSheetRiderFragment.getTag());
+            }
+        });
 
 
     }
