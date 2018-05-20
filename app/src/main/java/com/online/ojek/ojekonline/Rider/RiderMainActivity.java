@@ -10,12 +10,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +42,8 @@ public class RiderMainActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseDatabase db;
     DatabaseReference users;
+
+    TextView txt_forgot_password;
 
     private final static int PERMISSION = 1000;
 
@@ -65,6 +71,15 @@ public class RiderMainActivity extends AppCompatActivity {
         btnRegister = (Button)findViewById(R.id.btnRegisterRider);
         rootRiderLayout = (RelativeLayout)findViewById(R.id.rootRiderLayout);
 
+        txt_forgot_password = (TextView) findViewById(R.id.txt_forgot_password);
+        txt_forgot_password.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                showDialogForgotPwd();
+                return false;
+            }
+        });
+
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,6 +93,54 @@ public class RiderMainActivity extends AppCompatActivity {
                 showLoginDialog();
             }
         });
+    }
+
+    private void showDialogForgotPwd() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(RiderMainActivity.this);
+        alertDialog.setTitle("FORGOT PASSWORD");
+        alertDialog.setMessage("Please enter your email");
+
+        LayoutInflater inflater = LayoutInflater.from(RiderMainActivity.this);
+        View forgot_your_password = inflater.inflate(R.layout.layout_forgot_password,null);
+
+        final MaterialEditText editEmail = (MaterialEditText) forgot_your_password.findViewById(R.id.editEmail);
+        alertDialog.setView(forgot_your_password);
+
+        alertDialog.setPositiveButton("RESET", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(final DialogInterface dialogInterface, int i) {
+                final SpotsDialog waitingDialog = new SpotsDialog(RiderMainActivity.this);
+                waitingDialog.show();
+
+                auth.sendPasswordResetEmail(editEmail.getText().toString().trim())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                dialogInterface.dismiss();
+                                waitingDialog.dismiss();
+
+                                Snackbar.make(rootRiderLayout, "Reset password link has been sent", Snackbar.LENGTH_LONG)
+                                        .show();
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        dialogInterface.dismiss();
+                        waitingDialog.dismiss();
+
+                        Snackbar.make(rootRiderLayout, ""+e.getMessage(), Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
+            }
+        });
+        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        alertDialog.show();
     }
 
 

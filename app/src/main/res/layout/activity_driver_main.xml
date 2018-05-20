@@ -44,6 +44,18 @@
         android:text="Mencari aplikasi untuk penumpang?"
         android:textAlignment="center"
         android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/txt_forgot_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:layout_marginTop="20dp"
+        android:text="Lupa Password ?"
+        android:textAlignment="center"
+        android:textSize="12sp" />
     
     <LinearLayout
         android:orientation="horizontal"
