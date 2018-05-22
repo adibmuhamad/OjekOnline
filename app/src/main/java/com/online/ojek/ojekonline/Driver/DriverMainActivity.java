@@ -203,7 +203,7 @@ public class DriverMainActivity extends AppCompatActivity {
 
                                                     }
                                                 });
-                                        startActivity(new Intent(DriverMainActivity.this, DriverWelcomeActivity.class));
+                                        startActivity(new Intent(DriverMainActivity.this, DriverHome.class));
                                         finish();
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
