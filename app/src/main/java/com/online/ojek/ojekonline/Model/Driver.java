@@ -5,7 +5,7 @@ package com.online.ojek.ojekonline.Model;
  */
 
 public class Driver {
-    private String email,password,name,phone;
+    private String email,password,name,phone, avatarUri;
 
     public Driver(){
 
@@ -16,6 +16,14 @@ public class Driver {
         this.password = password;
         this.name = name;
         this.phone = phone;
+    }
+
+    public String getAvatarUri() {
+        return avatarUri;
+    }
+
+    public void setAvatarUri(String avatarUri) {
+        this.avatarUri = avatarUri;
     }
 
     public String getEmail(){

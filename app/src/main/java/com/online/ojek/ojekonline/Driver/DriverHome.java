@@ -2,11 +2,13 @@ package com.online.ojek.ojekonline.Driver;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -15,6 +17,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +30,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -59,6 +64,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthCredential;
@@ -70,12 +76,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.maps.android.SphericalUtil;
 import com.online.ojek.ojekonline.Common.Common;
 import com.online.ojek.ojekonline.Model.Token;
 import com.online.ojek.ojekonline.R;
 import com.online.ojek.ojekonline.remote.IGoogleAPI;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,7 +96,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import dmax.dialog.SpotsDialog;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -134,6 +147,8 @@ public class DriverHome extends AppCompatActivity
     private IGoogleAPI mServices;
 
     DatabaseReference onlineRef, currentUserRef;
+    FirebaseStorage firebaseStorage;
+    StorageReference storageReference;
 
     Runnable drawPathRunnable = new Runnable() {
         @Override
@@ -194,7 +209,8 @@ public class DriverHome extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -204,6 +220,17 @@ public class DriverHome extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View navigationHeaderView = navigationView.getHeaderView(0);
+        TextView textName = (TextView) navigationHeaderView.findViewById(R.id.txtDriverName);
+        CircleImageView imageAvatar = (CircleImageView) navigationHeaderView.findViewById(R.id.image_avatar);
+
+        textName.setText(Common.currentUser.getName());
+        if(Common.currentUser.getAvatarUri() != null && !TextUtils.isEmpty(Common.currentUser.getAvatarUri())) {
+            Picasso.with(this)
+                    .load(Common.currentUser.getAvatarUri())
+                    .into(imageAvatar);
+        }
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapDriver);
@@ -587,6 +614,9 @@ public class DriverHome extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_way_bil) {
 
+        } else if (id == R.id.nav_update_info) {
+            showDialogUpdateInfo();
+
         }else if (id == R.id.nav_change_pwd) {
             showDialogChangePassword();
 
@@ -601,6 +631,126 @@ public class DriverHome extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void showDialogUpdateInfo() {
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(DriverHome.this);
+        alertDialog.setTitle("UPDATE INFORMATION");
+        alertDialog.setMessage("Please fill all information");
+        LayoutInflater inflater = this.getLayoutInflater();
+        View layout_pwd = inflater.inflate(R.layout.layout_update_information,null);
+
+        final MaterialEditText editNama = (MaterialEditText) layout_pwd.findViewById(R.id.editName);
+        final MaterialEditText editPhone = (MaterialEditText) layout_pwd.findViewById(R.id.editPhone);
+        final ImageView editAvatar = (ImageView) layout_pwd.findViewById(R.id.image_upload);
+        editAvatar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                chooseImage();
+            }
+        });
+
+        alertDialog.setView(layout_pwd);
+
+        alertDialog.setPositiveButton("UPDATE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                final android.app.AlertDialog waitingDialog = new SpotsDialog(DriverHome.this);
+                waitingDialog.show();
+
+                String name = editNama.getText().toString();
+                String phone = editPhone.getText().toString();
+
+                Map<String,Object> updateInfo = new HashMap<>();
+                if(!TextUtils.isEmpty(name))
+                    updateInfo.put("name",name);
+                if(!TextUtils.isEmpty(phone))
+                    updateInfo.put("phone",phone);
+
+                DatabaseReference driverInformation = FirebaseDatabase.getInstance().getReference(Common.user_driver_tbl);
+                driverInformation.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                        .updateChildren(updateInfo)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful())
+                                    Toast.makeText(DriverHome.this, "Information Update!", Toast.LENGTH_SHORT).show();
+                                else
+                                    Toast.makeText(DriverHome.this, "Failed", Toast.LENGTH_SHORT).show();
+                                waitingDialog.dismiss();
+                            }
+                        });
+            }
+        });
+
+        alertDialog.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent,"Select Picture: "),Common.PICK_IMAGE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == Common.PICK_IMAGE_REQUEST && requestCode == RESULT_OK
+                && data != null && data.getData() != null)
+        {
+            Uri saveUri = data.getData();
+            if(saveUri != null){
+                final ProgressDialog mDialog = new ProgressDialog(this);
+                mDialog.setMessage("Uploading....");
+                mDialog.show();
+
+                String imageName = UUID.randomUUID().toString();
+                final StorageReference imageFolder =  storageReference.child("images/"+imageName);
+                imageFolder.putFile(saveUri)
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                mDialog.dismiss();
+
+                                imageFolder.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Map<String,Object> avatarUpdate = new HashMap<>();
+                                        avatarUpdate.put("avatarUrl",uri.toString());
+                                        DatabaseReference driverInformation = FirebaseDatabase.getInstance().getReference(Common.user_driver_tbl);
+                                        driverInformation.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                                .updateChildren(avatarUpdate)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if(task.isSuccessful())
+                                                            Toast.makeText(DriverHome.this, "Uploaded!", Toast.LENGTH_SHORT).show();
+                                                        else
+                                                            Toast.makeText(DriverHome.this, "Upload error", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                    }
+                                });
+                            }
+                        })
+                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                                double progress = (100.0*taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                                mDialog.setMessage("Uploaded "+progress+"%");
+                            }
+                        });
+            }
+        }
     }
 
     private void showDialogChangePassword() {

@@ -196,6 +196,8 @@ public class DriverMainActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         Common.currentUser = dataSnapshot.getValue(Driver.class);
+                                                        startActivity(new Intent(DriverMainActivity.this, DriverHome.class));
+                                                        finish();
                                                     }
 
                                                     @Override
@@ -203,7 +205,7 @@ public class DriverMainActivity extends AppCompatActivity {
 
                                                     }
                                                 });
-                                        startActivity(new Intent(DriverMainActivity.this, DriverHome.class));
+
                                         finish();
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {

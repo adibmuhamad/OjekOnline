@@ -11,6 +11,9 @@
             android:id="@+id/nav_way_bil"
             android:title="Way Bill" />
         <item
+            android:id="@+id/nav_update_info"
+            android:title="Update Information" />
+        <item
             android:id="@+id/nav_change_pwd"
             android:title="Change Password" />
         <item
