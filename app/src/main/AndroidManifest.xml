@@ -61,7 +61,7 @@
         </service>
 
         <activity
-            android:name=".DriverTracking"
+            android:name=".Driver.DriverTracking"
             android:label="@string/title_activity_driver_tracking" />
         <activity
             android:name=".TripDetail"
@@ -69,7 +69,8 @@
         <activity
             android:name=".Driver.DriverHome"
             android:label="@string/title_activity_driver_home"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".Rider.RatingActivity"></activity>
     </application>
 
 </manifest>

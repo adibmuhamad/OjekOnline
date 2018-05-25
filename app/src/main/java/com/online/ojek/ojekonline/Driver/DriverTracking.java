@@ -1,4 +1,4 @@
-package com.online.ojek.ojekonline;
+package com.online.ojek.ojekonline.Driver;
 
 import android.Manifest;
 import android.app.ProgressDialog;
@@ -47,6 +47,8 @@ import com.online.ojek.ojekonline.Model.FCMResponse;
 import com.online.ojek.ojekonline.Model.Notification;
 import com.online.ojek.ojekonline.Model.Sender;
 import com.online.ojek.ojekonline.Model.Token;
+import com.online.ojek.ojekonline.R;
+import com.online.ojek.ojekonline.TripDetail;
 import com.online.ojek.ojekonline.remote.IFCMService;
 import com.online.ojek.ojekonline.remote.IGoogleAPI;
 
@@ -157,6 +159,8 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
                                 JSONObject time = legsObject.getJSONObject("duration");
                                 String time_text = time.getString("text");
                                 Integer time_value = Integer.parseInt(time_text.replaceAll("[^0-9\\\\.]+",""));
+
+                                sendDropOffNotification(customerId);
 
                                 Intent intent = new Intent(DriverTracking.this, TripDetail.class);
                                 intent.putExtra("start_address",legsObject.getString("start_address"));
@@ -270,6 +274,25 @@ public class DriverTracking extends FragmentActivity implements OnMapReadyCallba
     private void sendArrivedNotification(String customerId) {
         Token token = new Token(customerId);
         Notification notification = new Notification("Arrived",String.format("The driver %s has arrived at your location", Common.currentUser.getName()));
+        Sender sender = new Sender(token.getToken(),notification);
+        mfcmService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {
+            @Override
+            public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                if(response.body().success != 1){
+                    Toast.makeText(DriverTracking.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<FCMResponse> call, Throwable t) {
+
+            }
+        });
+    }
+
+    private void sendDropOffNotification(String customerId) {
+        Token token = new Token(customerId);
+        Notification notification = new Notification("DopOff",customerId);
         Sender sender = new Sender(token.getToken(),notification);
         mfcmService.sendMessage(sender).enqueue(new Callback<FCMResponse>() {
             @Override

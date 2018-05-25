@@ -100,8 +100,7 @@ public class RiderWelcomeActivity extends AppCompatActivity
     BottomSheetRiderFragment mBottomSheet;
     Button btnPickUpRequest;
 
-    boolean isDriverFound = false;
-    String driverId="";
+
     int radius = 1;
     int distance = 1;
     private static final int LIMIT = 3;
@@ -147,10 +146,10 @@ public class RiderWelcomeActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                if(!isDriverFound)
+                if(!Common.isDriverFound)
                     requestPickUpHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
                 else
-                    sendRequestToDriver(driverId);
+                    sendRequestToDriver(Common.driverId);
             }
         });
 
@@ -278,9 +277,9 @@ public class RiderWelcomeActivity extends AppCompatActivity
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
-                if(!isDriverFound){
-                    isDriverFound = true;
-                    driverId = key;
+                if(!Common.isDriverFound){
+                    Common.isDriverFound = true;
+                    Common.driverId = key;
                     btnPickUpRequest.setText("CALL DRIVER");
                     //Toast.makeText(RiderWelcomeActivity.this,""+key,Toast.LENGTH_SHORT).show();
                 }
@@ -298,12 +297,14 @@ public class RiderWelcomeActivity extends AppCompatActivity
 
             @Override
             public void onGeoQueryReady() {
-                if(!isDriverFound && radius < LIMIT){
+                if(!Common.isDriverFound && radius < LIMIT){
                     radius++;
                     findDriver();
                 }else{
-                    Toast.makeText(RiderWelcomeActivity.this, "No available any driver near you", Toast.LENGTH_SHORT).show();
-                    btnPickUpRequest.setText("REQUSET PICKUP");
+                    if(!Common.isDriverFound) {
+                        Toast.makeText(RiderWelcomeActivity.this, "No available any driver near you", Toast.LENGTH_SHORT).show();
+                        btnPickUpRequest.setText("REQUSET PICKUP");
+                    }
                 }
             }
 

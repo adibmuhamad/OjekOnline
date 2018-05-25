@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.online.ojek.ojekonline.R;
+import com.online.ojek.ojekonline.Rider.RatingActivity;
 
 import java.util.logging.Handler;
 
@@ -34,6 +35,15 @@ public class MyFirebaseMessagingDriver extends FirebaseMessagingService {
         else if(remoteMessage.getNotification().getTitle().equals("Arrived")){
             showArrivedNotification(remoteMessage.getNotification().getBody());
         }
+        else if(remoteMessage.getNotification().getTitle().equals("DropOff")){
+            openRatingActivity(remoteMessage.getNotification().getBody());
+        }
+    }
+
+    private void openRatingActivity(String body) {
+        Intent intent = new Intent(this, RatingActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     private void showArrivedNotification(String body) {

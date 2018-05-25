@@ -223,7 +223,10 @@ public class DriverHome extends AppCompatActivity
 
         View navigationHeaderView = navigationView.getHeaderView(0);
         TextView textName = (TextView) navigationHeaderView.findViewById(R.id.txtDriverName);
+        TextView txtStars = (TextView) navigationHeaderView.findViewById(R.id.txtStars);
         CircleImageView imageAvatar = (CircleImageView) navigationHeaderView.findViewById(R.id.image_avatar);
+
+        txtStars.setText(Common.currentUser.getRatings());
 
         textName.setText(Common.currentUser.getName());
         if(Common.currentUser.getAvatarUri() != null && !TextUtils.isEmpty(Common.currentUser.getAvatarUri())) {
