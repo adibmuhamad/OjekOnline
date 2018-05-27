@@ -31,6 +31,7 @@ import com.online.ojek.ojekonline.R;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -61,6 +62,7 @@ public class RiderMainActivity extends AppCompatActivity {
                 .build());
         setContentView(R.layout.activity_rider_main);
 
+        Paper.init(this);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
@@ -91,6 +93,37 @@ public class RiderMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showLoginDialog();
+            }
+        });
+
+        String user = Paper.book().read(Common.rider_user_field);
+        String password = Paper.book().read(Common.rider_password_field);
+        if(user!= null && password!= null){
+            if(!TextUtils.isEmpty(user) && !TextUtils.isEmpty(password)){
+                autoLogin(user,password);
+            }
+        }
+    }
+
+    private void autoLogin(String user, String password) {
+        final SpotsDialog waitingDialog = new SpotsDialog(RiderMainActivity.this);
+        waitingDialog.show();
+
+        auth.signInWithEmailAndPassword(user,password)
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        waitingDialog.dismiss();
+                        startActivity(new Intent(RiderMainActivity.this, RiderWelcomeActivity.class));
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                waitingDialog.dismiss();
+                Snackbar.make(rootRiderLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
+                        .show();
+                btnSignIn.setEnabled(true);
             }
         });
     }
@@ -191,6 +224,8 @@ public class RiderMainActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(AuthResult authResult) {
                                 waitingDialog.dismiss();
+                                Paper.book().write(Common.rider_user_field,editEmail.getText().toString());
+                                Paper.book().write(Common.rider_password_field,editPassword.getText().toString());
                                 startActivity(new Intent(RiderMainActivity.this, RiderWelcomeActivity.class));
                                 finish();
                             }

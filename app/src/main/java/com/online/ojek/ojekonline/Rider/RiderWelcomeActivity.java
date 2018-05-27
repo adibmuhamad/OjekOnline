@@ -1,6 +1,7 @@
 package com.online.ojek.ojekonline.Rider;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -57,6 +58,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 import com.online.ojek.ojekonline.Common.Common;
+import com.online.ojek.ojekonline.Driver.DriverHome;
+import com.online.ojek.ojekonline.Driver.DriverMainActivity;
 import com.online.ojek.ojekonline.Helper.CustomInfoWindow;
 import com.online.ojek.ojekonline.Model.FCMResponse;
 import com.online.ojek.ojekonline.Model.Notification;
@@ -66,6 +69,7 @@ import com.online.ojek.ojekonline.Model.Token;
 import com.online.ojek.ojekonline.R;
 import com.online.ojek.ojekonline.remote.IFCMService;
 
+import io.paperdb.Paper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -531,23 +535,20 @@ public class RiderWelcomeActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if(id == R.id.nav_sign_out){
+            signOut();
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void signOut() {
+        Paper.init(this);
+        Paper.book().destroy();
+
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(RiderWelcomeActivity.this,RiderMainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override

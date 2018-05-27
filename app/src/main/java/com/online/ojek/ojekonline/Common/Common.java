@@ -24,6 +24,10 @@ public class Common {
     public static final String pickup_request_tbl = "PickupRequest";
     public static final String token_tbl = "Tokens";
     public static final String rating_tbl = "RatingDetails";
+    public static final String user_field = "usr";
+    public static final String password_field = "pwd";
+    public static final String rider_user_field = "usr";
+    public static final String rider_password_field = "pwd";
     public static final int PICK_IMAGE_REQUEST = 9999;
 
     public static Driver currentUser;

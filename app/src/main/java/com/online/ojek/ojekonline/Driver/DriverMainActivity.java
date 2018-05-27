@@ -34,6 +34,7 @@ import com.online.ojek.ojekonline.Rider.RiderMainActivity;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -61,6 +62,8 @@ public class DriverMainActivity extends AppCompatActivity {
         .setFontAttrId(R.attr.fontPath)
         .build());
         setContentView(R.layout.activity_driver_main);
+
+        Paper.init(this);
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
@@ -93,6 +96,56 @@ public class DriverMainActivity extends AppCompatActivity {
                 showLoginDialog();
             }
         });
+
+        String user = Paper.book().read(Common.user_field);
+        String password = Paper.book().read(Common.password_field);
+        if(user!= null && password!= null){
+            if(!TextUtils.isEmpty(user) && !TextUtils.isEmpty(password)){
+                autoLogin(user,password);
+            }
+        }
+    }
+
+    private void autoLogin(String user, String password) {
+
+
+        final SpotsDialog waitingDialog = new SpotsDialog(DriverMainActivity.this);
+        waitingDialog.show();
+
+        auth.signInWithEmailAndPassword(user,password)
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                    @Override
+                    public void onSuccess(AuthResult authResult) {
+                        waitingDialog.dismiss();
+                        FirebaseDatabase.getInstance().getReference(Common.user_driver_tbl)
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Common.currentUser = dataSnapshot.getValue(Driver.class);
+                                        startActivity(new Intent(DriverMainActivity.this, DriverHome.class));
+                                        waitingDialog.dismiss();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                        finish();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                waitingDialog.dismiss();
+                Snackbar.make(rootLayout, "Failed "+e.getMessage(), Snackbar.LENGTH_SHORT)
+                        .show();
+                btnSignIn.setEnabled(true);
+            }
+        });
+
     }
 
     private void showDialogForgotPwd() {
@@ -195,6 +248,8 @@ public class DriverMainActivity extends AppCompatActivity {
                                                 .addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        Paper.book().write(Common.user_field,editEmail.getText().toString());
+                                                        Paper.book().write(Common.password_field,editPassword.getText().toString());
                                                         Common.currentUser = dataSnapshot.getValue(Driver.class);
                                                         startActivity(new Intent(DriverMainActivity.this, DriverHome.class));
                                                         finish();

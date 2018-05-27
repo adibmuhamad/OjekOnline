@@ -100,6 +100,7 @@ import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import dmax.dialog.SpotsDialog;
+import io.paperdb.Paper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -226,9 +227,9 @@ public class DriverHome extends AppCompatActivity
         TextView txtStars = (TextView) navigationHeaderView.findViewById(R.id.txtStars);
         CircleImageView imageAvatar = (CircleImageView) navigationHeaderView.findViewById(R.id.image_avatar);
 
+        textName.setText(Common.currentUser.getName());
         txtStars.setText(Common.currentUser.getRatings());
 
-        textName.setText(Common.currentUser.getName());
         if(Common.currentUser.getAvatarUri() != null && !TextUtils.isEmpty(Common.currentUser.getAvatarUri())) {
             Picasso.with(this)
                     .load(Common.currentUser.getAvatarUri())
@@ -825,6 +826,9 @@ public class DriverHome extends AppCompatActivity
     }
 
     private void signOut() {
+        Paper.init(this);
+        Paper.book().destroy();
+
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(DriverHome.this,DriverMainActivity.class);
         startActivity(intent);

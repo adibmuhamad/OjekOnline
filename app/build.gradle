@@ -22,6 +22,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation 'io.paperdb:paperdb:2.6'
     implementation 'me.zhanghai.android.materialratingbar:library:1.2.0'
     implementation 'com.google.maps.android:android-maps-utils:0.5+'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
